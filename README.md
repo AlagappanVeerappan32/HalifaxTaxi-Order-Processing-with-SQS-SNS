@@ -21,6 +21,9 @@ Welcome to the HalifaxTaxi Order Processing repository. This professional projec
 3. Upon detecting an order, an SNS notification is triggered, sending order details to your email.
 4. You, as the car delivery service provider, receive the notification and deliver the car to the client's address.
 
+![image](https://github.com/AlagappanVeerappan32/HalifaxTaxi-Order-Processing-with-SQS-SNS/assets/133504573/d28918cf-3d20-460c-a7a5-3468182becc8)
+
+
 ### Testing
 
 The application has undergone rigorous testing to ensure the seamless flow of order processing, monitoring, and notifications. Test cases have been designed to verify each stage of the process, from order generation to email notifications.
