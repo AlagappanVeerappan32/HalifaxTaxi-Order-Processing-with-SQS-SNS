@@ -1,0 +1,96 @@
+Resources:
+  HalifaxPayloadCF:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: HalifaxPayloadCF
+      TopicName: HalifaxPayloadCF
+
+  HalifaxTaxiPayloadCF:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: HalifaxTaxiPayloadCF
+
+  MySubscription:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt HalifaxTaxiPayloadCF.Arn
+      Protocol: sqs
+      TopicArn: !Ref HalifaxPayloadCF
+  
+  HalifaxTaxiCF:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: HalifaxTaxiCF
+      TopicName: HalifaxTaxiCF
+  
+  HalifaxTaxiSNSTopicSubscriptionCF:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Protocol: email
+      Endpoint: alexedge38@gmail.com
+      TopicArn: !Ref HalifaxTaxiCF
+
+  CarDeliveryServiceCF:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-5410-a3-cfs
+        S3Key: Car_delivery_service_CF.py.zip
+      Description: random customer order
+      FunctionName: Car_delivery_service_CF
+      Handler: Car_delivery_service_CF.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.10
+      Tags:
+        - Key: Assignment
+          Value: "3"
+      Timeout: 130
+
+  HalifaxTaxiLambdaCF:
+    Type: AWS::Lambda::Function
+    Properties:
+      Architectures:
+        - x86_64
+      Code:
+        S3Bucket: csci-5410-a3-cfs
+        S3Key: HalifaxTaxi_CF.py.zip
+      Description: send message to user 
+      FunctionName: HalifaxTaxi_CF 
+      Handler: HalifaxTaxi_CF.lambda_handler
+      Role: arn:aws:iam::637592602151:role/LabRole
+      Runtime: python3.10
+      Tags:
+        - Key: Assignment
+          Value: "3"
+      Timeout: 130 
+
+  EveryTwoMinutesRuleCF:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: CheckOrder_CF
+      ScheduleExpression: rate(2 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt HalifaxTaxiLambdaCF.Arn
+          Id: HalifaxTaxiLambdaTarget_CF
+
+
+Outputs:
+  HalifaxPayloadCF:
+    Value: !Ref HalifaxPayloadCF
+  HalifaxTaxiPayloadCF:
+    Value: !Ref HalifaxTaxiPayloadCF
+  MySubscription:
+    Value: !Ref MySubscription
+  HalifaxTaxiCF:
+    Value: !Ref HalifaxTaxiCF
+  HalifaxTaxiSNSTopicSubscriptionCF:
+    Value: !Ref HalifaxTaxiSNSTopicSubscriptionCF
+  CarDeliveryServiceCF:
+    Value: !Ref CarDeliveryServiceCF
+  HalifaxTaxiLambdaCF:
+    Value: !Ref HalifaxTaxiLambdaCF
+  EveryTwoMinutesRuleCF:
+    Value: !Ref EveryTwoMinutesRuleCF     
